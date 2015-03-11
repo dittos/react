@@ -608,8 +608,8 @@ div.CodeMirror pre, div.CodeMirror-linenumber, code {
   @include code-typography;
 }
 
-div.CodeMirror-linenumber {
-  text-align: right;
+div.CodeMirror-linenumber:after {
+  content: '.';
 }
 
 .CodeMirror, div.CodeMirror-gutters, div.highlight {

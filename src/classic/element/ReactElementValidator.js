@@ -134,8 +134,7 @@ function validatePropertyKey(name, element, parentType) {
  */
 function warnAndMonitorForKeyUse(message, element, parentType) {
   var ownerName = getCurrentOwnerDisplayName();
-  var parentName = typeof parentType === 'string' ?
-    parentType : parentType.displayName || parentType.name;
+  var parentName = parentType.displayName || parentType.name;
 
   var useName = ownerName || parentName;
   var memoizer = ownerHasKeyUseWarning[message] || (
@@ -146,30 +145,24 @@ function warnAndMonitorForKeyUse(message, element, parentType) {
   }
   memoizer[useName] = true;
 
-  var parentOrOwnerAddendum =
-    ownerName ? ` Check the render method of ${ownerName}.` :
-    parentName ? ` Check the React.render call using <${parentName}>.` :
-    '';
+  message += ownerName ?
+    ` Check the render method of ${ownerName}.` :
+    ` Check the React.render call using <${parentName}>.`;
 
   // Usually the current owner is the offender, but if it accepts children as a
   // property, it may be the creator of the child that's responsible for
   // assigning it a key.
-  var childOwnerAddendum = '';
   if (element &&
       element._owner &&
       element._owner !== ReactCurrentOwner.current) {
     // Name of the component that originally created this child.
     var childOwnerName = getName(element._owner);
 
-    childOwnerAddendum = ` It was passed a child from ${childOwnerName}.`;
+    message += ` It was passed a child from ${childOwnerName}.`;
   }
 
-  warning(
-    false,
-    message + '%s%s See http://fb.me/react-warning-keys for more information.',
-    parentOrOwnerAddendum,
-    childOwnerAddendum
-  );
+  message += ' See http://fb.me/react-warning-keys for more information.';
+  warning(false, message);
 }
 
 /**
@@ -253,7 +246,7 @@ function checkPropTypes(componentName, propTypes, props, location) {
         loggedTypeFailures[error.message] = true;
 
         var addendum = getDeclarationErrorAddendum(this);
-        warning(false, 'Failed propType: %s%s', error.message, addendum);
+        warning(false, 'Failed propType: ' + error.message + addendum);
       }
     }
   }
@@ -343,42 +336,6 @@ function checkAndWarnForMutatedProps(element) {
   }
 }
 
-/**
- * Given an element, validate that its props follow the propTypes definition,
- * provided by the type.
- *
- * @param {ReactElement} element
- */
-function validatePropTypes(element) {
-  if (element.type == null) {
-    // This has already warned. Don't throw.
-    return;
-  }
-  // Extract the component class from the element. Converts string types
-  // to a composite class which may have propTypes.
-  // TODO: Validating a string's propTypes is not decoupled from the
-  // rendering target which is problematic.
-  var componentClass = ReactNativeComponent.getComponentClassForElement(
-    element
-  );
-  var name = componentClass.displayName || componentClass.name;
-  if (componentClass.propTypes) {
-    checkPropTypes(
-      name,
-      componentClass.propTypes,
-      element.props,
-      ReactPropTypeLocations.prop
-    );
-  }
-  if (typeof componentClass.getDefaultProps === 'function') {
-    warning(
-      componentClass.getDefaultProps.isReactClassApproved,
-      'getDefaultProps is only used on classic React.createClass ' +
-      'definitions. Use a static property named `defaultProps` instead.'
-    );
-  }
-}
-
 var ReactElementValidator = {
 
   checkAndWarnForMutatedProps: checkAndWarnForMutatedProps,
@@ -405,7 +362,33 @@ var ReactElementValidator = {
       validateChildKeys(arguments[i], type);
     }
 
-    validatePropTypes(element);
+    if (type) {
+      // Extract the component class from the element. Converts string types
+      // to a composite class which may have propTypes.
+      // TODO: Validating a string's propTypes is not decoupled from the
+      // rendering target which is problematic.
+      var componentClass = ReactNativeComponent.getComponentClassForElement(
+        element
+      );
+      var name = componentClass.displayName || componentClass.name;
+      if (__DEV__) {
+        if (componentClass.propTypes) {
+          checkPropTypes(
+            name,
+            componentClass.propTypes,
+            element.props,
+            ReactPropTypeLocations.prop
+          );
+        }
+      }
+      if (typeof componentClass.getDefaultProps === 'function') {
+        warning(
+          componentClass.getDefaultProps.isReactClassApproved,
+          'getDefaultProps is only used on classic React.createClass ' +
+          'definitions. Use a static property named `defaultProps` instead.'
+        );
+      }
+    }
 
     return element;
   },
@@ -445,15 +428,6 @@ var ReactElementValidator = {
 
 
     return validatedFactory;
-  },
-
-  cloneElement: function(element, props, children) {
-    var newElement = ReactElement.cloneElement.apply(this, arguments);
-    for (var i = 2; i < arguments.length; i++) {
-      validateChildKeys(arguments[i], newElement.type);
-    }
-    validatePropTypes(newElement);
-    return newElement;
   }
 
 };

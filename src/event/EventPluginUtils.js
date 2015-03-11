@@ -14,7 +14,6 @@
 var EventConstants = require('EventConstants');
 
 var invariant = require('invariant');
-var warning = require('warning');
 
 /**
  * Injected dependencies:
@@ -29,10 +28,10 @@ var injection = {
   injectMount: function(InjectedMount) {
     injection.Mount = InjectedMount;
     if (__DEV__) {
-      warning(
+      invariant(
         InjectedMount && InjectedMount.getNode,
-        'EventPluginUtils.injection.injectMount(...): Injected Mount ' +
-        'module is missing getNode.'
+        'EventPluginUtils.injection.injectMount(...): Injected Mount module ' +
+        'is missing getNode.'
       );
     }
   }
@@ -69,7 +68,7 @@ if (__DEV__) {
       dispatchListeners.length :
       dispatchListeners ? 1 : 0;
 
-    warning(
+    invariant(
       idsIsArr === listenersIsArr && IDsLen === listenersLen,
       'EventPluginUtils: Invalid `event`.'
     );

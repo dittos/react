@@ -242,12 +242,17 @@ var ReactDefaultPerf = {
           addValue(entry.inclusive, rootNodeID, totalTime);
         }
 
+        var displayName = null;
+        if (this._instance.constructor.displayName) {
+          displayName = this._instance.constructor.displayName;
+        } else if (this._currentElement.type) {
+          displayName = this._currentElement.type;
+        }
+
         entry.displayNames[rootNodeID] = {
-          current: typeof this._currentElement.type === 'string' ?
-            this._currentElement.type :
-            this.getName(),
+          current: displayName,
           owner: this._currentElement._owner ?
-            this._currentElement._owner.getName() :
+            this._currentElement._owner._instance.constructor.displayName :
             '<root>'
         };
 

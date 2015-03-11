@@ -12,10 +12,8 @@
 'use strict';
 
 var EventConstants = require('EventConstants');
-var EventListener = require('EventListener');
 var EventPluginUtils = require('EventPluginUtils');
 var EventPropagators = require('EventPropagators');
-var ReactMount = require('ReactMount');
 var SyntheticClipboardEvent = require('SyntheticClipboardEvent');
 var SyntheticEvent = require('SyntheticEvent');
 var SyntheticFocusEvent = require('SyntheticFocusEvent');
@@ -26,8 +24,8 @@ var SyntheticTouchEvent = require('SyntheticTouchEvent');
 var SyntheticUIEvent = require('SyntheticUIEvent');
 var SyntheticWheelEvent = require('SyntheticWheelEvent');
 
-var emptyFunction = require('emptyFunction');
 var getEventCharCode = require('getEventCharCode');
+
 var invariant = require('invariant');
 var keyOf = require('keyOf');
 var warning = require('warning');
@@ -291,9 +289,6 @@ for (var type in topLevelEventsToDispatchConfig) {
   topLevelEventsToDispatchConfig[type].dependencies = [type];
 }
 
-var ON_CLICK_KEY = keyOf({onClick: null});
-var onClickListeners = {};
-
 var SimpleEventPlugin = {
 
   eventTypes: eventTypes,
@@ -422,30 +417,6 @@ var SimpleEventPlugin = {
     );
     EventPropagators.accumulateTwoPhaseDispatches(event);
     return event;
-  },
-
-  didPutListener: function(id, registrationName, listener) {
-    // Mobile Safari does not fire properly bubble click events on
-    // non-interactive elements, which means delegated click listeners do not
-    // fire. The workaround for this bug involves attaching an empty click
-    // listener on the target node.
-    if (registrationName === ON_CLICK_KEY) {
-      var node = ReactMount.getNode(id);
-      if (!onClickListeners[id]) {
-        onClickListeners[id] = EventListener.listen(
-          node,
-          'click',
-          emptyFunction
-        );
-      }
-    }
-  },
-
-  willDeleteListener: function(id, registrationName) {
-    if (registrationName === ON_CLICK_KEY) {
-      onClickListeners[id].remove();
-      delete onClickListeners[id];
-    }
   }
 
 };

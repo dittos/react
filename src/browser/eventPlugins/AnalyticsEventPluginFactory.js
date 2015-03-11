@@ -80,7 +80,6 @@ var ExecutionEnvironment = require('ExecutionEnvironment');
 
 var emptyFunction = require('emptyFunction');
 var invariant = require('invariant');
-var warning = require('warning');
 var topLevelTypes = require('EventConstants').topLevelTypes;
 
 var ANALYTICS_ID = 'data-analytics-id';
@@ -174,7 +173,7 @@ function initAnalyticsDataForID(analyticsID, analyticsEventsArr) {
   analyticsData[analyticsID] = {};
   analyticsEventsArr.forEach(function(analyticsEvent) {
     if (__DEV__) {
-      warning(
+      invariant(
         analyticsEventNameToTopLevelType[analyticsEvent],
         'Invalid analyticsEvent:%s for analyticsID:%s',
         analyticsEvent,
@@ -198,10 +197,7 @@ var createAnalyticsPlugin = function(cb, interval) {
   );
 
   if (__DEV__) {
-    warning(
-      cb,
-      'createAnalyticsPlugin(...): You must provide a callback.'
-    );
+    invariant(cb, 'createAnalyticsPlugin(...): You must provide a callback.');
   }
   cb = cb || emptyFunction;
 

@@ -34,18 +34,15 @@ var ReactServerRendering = require('ReactServerRendering');
 var assign = require('Object.assign');
 var findDOMNode = require('findDOMNode');
 var onlyChild = require('onlyChild');
-var warning = require('warning');
 
 ReactDefaultInjection.inject();
 
 var createElement = ReactElement.createElement;
 var createFactory = ReactElement.createFactory;
-var cloneElement = ReactElement.cloneElement;
 
 if (__DEV__) {
   createElement = ReactElementValidator.createElement;
   createFactory = ReactElementValidator.createFactory;
-  cloneElement = ReactElementValidator.cloneElement;
 }
 
 var render = ReactPerf.measure('React', 'render', ReactMount.render);
@@ -65,7 +62,6 @@ var React = {
   },
   createClass: ReactClass.createClass,
   createElement: createElement,
-  cloneElement: cloneElement,
   createFactory: createFactory,
   createMixin: function(mixin) {
     // Currently a noop. Will be used to validate and trace mixins.
@@ -114,17 +110,6 @@ if (__DEV__) {
       }
     }
 
-    // If we're in IE8, check to see if we are in combatibility mode and provide
-    // information on preventing compatibility mode
-    var ieCompatibilityMode = document.documentMode && document.documentMode < 8;
-
-    warning(
-      !ieCompatibilityMode,
-      'Internet Explorer is running in compatibility mode; please add the ' +
-      'following tag to your HTML to prevent this from happening: ' +
-      '<meta http-equiv="X-UA-Compatible" content="IE=edge" />'
-    );
-
     var expectedFeatures = [
       // shims
       Array.isArray,
@@ -155,6 +140,6 @@ if (__DEV__) {
   }
 }
 
-React.version = '0.14.0-alpha';
+React.version = '0.13.0-rc1';
 
 module.exports = React;

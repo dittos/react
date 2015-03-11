@@ -27,7 +27,6 @@ var CompilerPlayground = React.createClass({
           renderCode={true}
           transformer={transformer.bind(null, this.state.harmony)}
           showCompiledJSTab={false}
-          showLineNumbers={true}
         />
         <label className="compiler-option">
           <input
